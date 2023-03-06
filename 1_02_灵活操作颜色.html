@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>02_灵活操作颜色</title>
+</head>
+<style>
+    .containerStack {
+        position: absolute;
+        float: left;
+    }
+</style>
+<body style="overflow: hidden">
+<div>
+    <!--1、建立canvas画布-->
+    <canvas id="canvas" class="containerStack"></canvas>
+    <label>
+        <input type="color" class="containerStack" oninput="selectColor(this.value)">
+    </label>
+</div>
+<script>
+    let rgbColor = null
+    // 2、获取画布
+    let canvas = document.getElementById("canvas")
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // 3、获取webgl上下文
+    let gl = canvas.getContext("webgl");
+    // 4、指定颜色
+    gl.clearColor(0, 0, 1, 1);
+    // 5、使用指定颜色绘图
+    gl.clear(gl.COLOR_BUFFER_BIT)
+
+    // 选择颜色并将HEX格式转RGB
+    function selectColor(hexColor) {
+        let color = hexColor.slice(1); // 去掉'#'号
+        let rgba = [
+            parseInt("0x" + color.slice(0, 2)),
+            parseInt("0x" + color.slice(2, 4)),
+            parseInt("0x" + color.slice(4, 6))
+        ];
+        rgbColor = "rgba(" + rgba.toString() + ")"
+        console.log(rgbColor)
+    }
+</script>
+</body>
+</html>
