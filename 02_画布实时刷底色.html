@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>02_灵活操作颜色</title>
+    <title>02_画布实时刷底色</title>
 </head>
 <style>
     .containerStack {
@@ -21,7 +21,6 @@
     </label>
 </div>
 <script>
-    let rgbColor = null
     // 2、获取画布
     let canvas = document.getElementById("canvas")
     canvas.width = window.innerWidth;
@@ -41,8 +40,16 @@
             parseInt("0x" + color.slice(2, 4)),
             parseInt("0x" + color.slice(4, 6))
         ];
-        rgbColor = "rgba(" + rgba.toString() + ")"
-        console.log(rgbColor)
+        let rgbColor = "rgba(" + rgba.toString() + ")"
+        const reg = RegExp(/\((.*)\)/);
+        const rgbaStr = reg.exec(rgbColor)[1]
+        const rgb = rgbaStr.split(",").map((ele) => parseInt(ele));
+        const r = rgb[0] / 255;
+        const g = rgb[1] / 255;
+        const b = rgb[2] / 255;
+        // 实时刷新底色
+        gl.clearColor(r, g, b, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT)
     }
 </script>
 </body>
