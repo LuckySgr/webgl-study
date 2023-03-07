@@ -3,8 +3,8 @@ class ShaderUtils {
         // 1、创建程序对象
         const program = gl.createProgram();
         // 2、建立着色对象
-        const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
-        const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+        const vertexShader = this.#loadShader(gl, gl.VERTEX_SHADER, vsSource);
+        const fragmentShader = this.#loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
         // 3、把顶点着色对象装进程序对象中
         gl.attachShader(program, vertexShader);
         // 4、把片元着色对象装进程序对象中
@@ -18,7 +18,7 @@ class ShaderUtils {
         return true;
     }
 
-    loadShader(gl, type, source) {
+    #loadShader(gl, type, source) {
         // 1、根据着色类型，建立着色器对象
         const shader = gl.createShader(type);
         // 2、将着色器源文件传入着色器对象中
