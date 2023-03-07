@@ -28,7 +28,7 @@
     // 3、获取webgl上下文
     let gl = canvas.getContext("webgl");
     // 4、指定颜色
-    gl.clearColor(0, 0, 1, 1);
+    gl.clearColor(1, 0, 1, 0.5);
     // 5、使用指定颜色绘图
     gl.clear(gl.COLOR_BUFFER_BIT)
 
@@ -48,7 +48,7 @@
         const g = rgb[1] / 255;
         const b = rgb[2] / 255;
         // 实时刷新底色
-        gl.clearColor(r, g, b, 1);
+        gl.clearColor(r, g, b, 0.5);
         gl.clear(gl.COLOR_BUFFER_BIT)
     }
 </script>
