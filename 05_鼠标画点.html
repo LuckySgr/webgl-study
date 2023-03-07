@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>05_鼠标画点</title>
+</head>
+<body style="overflow: hidden">
+<!--1、建立canvas画布-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    // 2、获取canvas画布
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // 3、获取WebGL上下文
+    let gl = canvas.getContext("webgl");
+    // 4、编写顶点着色器和片元着色器
+    const vertexShaderTxt = `
+        void main() {
+          gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+          gl_PointSize = 20.0;
+        }
+  `;
+    const fragmentShaderTxt = `
+        void main() {
+          gl_FragColor = vec4(0.0, 0.3, 0.7, 0.5);
+        }
+  `;
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    // 指定画布底色
+    gl.clearColor(1.0, 0.0, 0.5, 0.5);
+    // 使用指定颜色绘渲染画布底色
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    // 绘制顶点
+    gl.drawArrays(gl.POINTS, 0, 1);
+
+    // TODO 获取鼠标点在WebGL中的位置
+    
+</script>
+</body>
+</html>
