@@ -21,7 +21,7 @@
     const vertexShaderTxt = `
         void main() {
             gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
-            gl_PointSize = 50.0;
+            gl_PointSize = 20.0;
         }
     `;
     const fragmentShaderTxt = `
@@ -31,7 +31,7 @@
     `;
     // 5、初始化着色器
     ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
-    // 6、指定颜色
+    // 6、指定画布底色
     gl.clearColor(0, 0, 1, 1);
     // 7、使用指定颜色绘图
     gl.clear(gl.COLOR_BUFFER_BIT)
