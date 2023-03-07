@@ -18,16 +18,16 @@
     let gl = canvas.getContext("webgl");
     // 4、编写顶点着色器和片元着色器
     const vertexShaderTxt = `
-    attribute vec4 a_Position;
-    void main () {
-      gl_Position = a_Position;
-      gl_PointSize = 20.0;
-    }
+        attribute vec4 a_Position;
+        void main () {
+          gl_Position = a_Position;
+          gl_PointSize = 20.0;
+        }
   `;
     const fragmentShaderTxt = `
-    void main() {
-      gl_FragColor = vec4(0.0, 0.6, 0.1, 0.5);
-    }
+        void main() {
+          gl_FragColor = vec4(0.0, 0.6, 0.1, 0.5);
+        }
   `;
     ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt)
     // 5、获取attribute变量名称
