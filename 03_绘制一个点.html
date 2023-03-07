@@ -33,7 +33,7 @@
     ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
     // 6、指定画布底色
     gl.clearColor(0, 0, 1, 1);
-    // 7、使用指定颜色绘图
+    // 7、使用指定颜色绘渲染画布底色
     gl.clear(gl.COLOR_BUFFER_BIT)
     // 8、绘制点
     gl.drawArrays(gl.POINTS, 0, 1);

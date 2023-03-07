@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>04_着色器获取JS数据</title>
+</head>
+<body style="overflow: hidden">
+<!--1、新建画布-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    // 2、获取画布
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // 3、获取WebGL上下文
+    let gl = canvas.getContext("webgl");
+    // 4、编写顶点着色器和片元着色器
+    const vertexShaderTxt = `
+    attribute vec4 a_Position;
+    void main () {
+      gl_Position = a_Position;
+      gl_PointSize = 20.0;
+    }
+  `;
+    const fragmentShaderTxt = `
+    void main() {
+      gl_FragColor = vec4(0.0, 0.6, 0.1, 0.5);
+    }
+  `;
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt)
+    // 5、获取attribute变量名称
+    let a_Position = gl.getAttribLocation(gl.program, "a_Position");
+    // 6、修改变量值
+    gl.vertexAttrib4f(a_Position, 0.5, 0.0, 0.0, 1.0);
+    // 7、指定画布底色
+    gl.clearColor(0.0, 0.3, 0.7, 0.5)
+    // 8、使用指定颜色绘渲染画布底色
+    gl.clear(gl.COLOR_BUFFER_BIT)
+    // 9、绘制顶点
+    gl.drawArrays(gl.POINTS, 0, 1)
+</script>
+</body>
+</html>
