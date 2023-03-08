@@ -28,6 +28,15 @@ class ShaderUtils {
         // 4、返回着色器对象
         return shader;
     }
+
+    // 获取Shader代码
+    getShaderCode(url) {
+        // JavaScript 原生ajax请求
+        let httpRequest = new XMLHttpRequest();//第一步：建立所需的对象
+        httpRequest.open('GET', url, false);//第二步：打开连接  将请求参数写在url中  eg:"http://localhost:8080/xxx/xxx"
+        httpRequest.send();//第三步：发送请求  将请求参数写在URL中
+        return httpRequest.responseText;
+    }
 }
 
 export default new ShaderUtils()
