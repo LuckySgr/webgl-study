@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>06_WebGL同步绘图原理</title>
+</head>
+<!--
+
+gl.drawArrays() 方法只会同步绘图，走完了js 主线程后，再次绘图时，就会从头再来。
+也就说，异步执行的drawArrays() 方法会把画布上的图像都刷掉。
+
+webgl 的同步绘图的现象，其实是由webgl底层内置的颜色缓冲区导致的。
+它在电脑里会占用一块内存。在我们使用webgl绘图的时候，是先在颜色缓冲区中画出来，这样的图像还未渲染出来，所以外人看不见，只有webgl系统自己知道。
+在我们想要将图像显示出来的时候，那就照着颜色缓冲区中的图像去画，这个步骤是webgl 内部自动完成的，我们只要执行绘图命令即可。
+颜色缓冲区中存储的图像，只在当前线程有效。比如我们先在js主线程中绘图，主线程结束后，会再去执行信息队列里的异步线程。
+在执行异步线程时，颜色缓冲区就会被webgl系统重置，我们曾经在主线程里的颜色缓冲区图像也就没了，既然没了，也就画不出那时的图像了。
+
+解决思路：
+    使用数组将N个顶点保存起来，在绘制第N+1个时，将前面的第N个也一起绘制出来。
+-->
+<body style="overflow: hidden">
+<!--1、建立canvas画布-->
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+    // 2、获取canvas画布
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // 3、获取WebGL上下文
+    let gl = canvas.getContext('webgl');
+    // 4、编写顶点着色器和片元着色器
+    const vertexShaderTxt = ShaderUtils.getShaderCode('./Shaders/06/vertexShader.vert')
+    const fragmentShaderTxt = ShaderUtils.getShaderCode('./Shaders/06/fragmentShader.frag')
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    // 5、获取attribute变量
+    let a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    // 指定画布颜色
+    gl.clearColor(0.0, 0.0, 0.0, 1.0)
+    // 使用指定颜色渲染画布
+    gl.clear(gl.COLOR_BUFFER_BIT)
+
+    // 获取鼠标点在WebGL中的位置。
+    let c_point = []; // 用于存放点击的点坐标
+    canvas.addEventListener('click', (event) => {
+        // 获取鼠标在canvas画布中CSS位置。
+        const {clientX, clientY} = event;
+        const {left, top, width, height} = canvas.getBoundingClientRect();
+        const [cssX, cssY] = [clientX - left, clientY - top];
+        // canvas 坐标系转WebGL坐标系。
+        const [halfWidth, halfHeight] = [width / 2, height / 2]; // canvas画布中心点
+        const [xBaseCenter, yBaseCenter] = [cssX - halfWidth, cssY - halfHeight]; // 鼠标位减去canvas 画布的中心位，得到的就是鼠标基于画布中心的位置。
+        // 解决y方向的差异。
+        const yBaseCenterTop = -yBaseCenter; // 因为webgl 里的y 轴和canvas 2d 里的y轴相反，所以咱们对yBaseCenter 值取一下反。
+        // 解决坐标基底的差异。
+        const [x, y] = [xBaseCenter / halfWidth, yBaseCenterTop / halfHeight] // 由于canvas 2d 的坐标基底中的两个分量分别是一个像素的宽高，而webgl的坐标基底的两个分量是画布的宽高，所以咱们得求个比值。
+        c_point.push({x, y});
+        // 使用指定颜色绘渲染画布底色
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        c_point.forEach(({x, y}) => {
+            // 修改attribute变量值
+            gl.vertexAttrib2f(a_Position, x, y);
+            // 绘制顶点
+            gl.drawArrays(gl.POINTS, 0, 1);
+        })
+    })
+</script>
+</html>
