@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>07_修改点的尺寸</title>
+</head>
+<body style="overflow: hidden">
+<!--1、建立canvas画布-->
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+    // 2、获取canvas画布
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // 3、获取WebGL上下文
+    let gl = canvas.getContext('webgl');
+    // 4、编写顶点着色器和片元着色器
+    const vertexShaderTxt = ShaderUtils.getShaderCode('./Shaders/07/vertexShader.vert')
+    const fragmentShaderTxt = ShaderUtils.getShaderCode('./Shaders/07/fragmentShader.frag')
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    // 5、获取attribute变量
+    let a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    let a_PointSize = gl.getAttribLocation(gl.program, 'a_PointSize');
+    // 指定画布颜色
+    gl.clearColor(0.0, 0.0, 0.0, 1.0)
+    // 使用指定颜色渲染画布
+    gl.clear(gl.COLOR_BUFFER_BIT)
+
+    // 获取鼠标点在WebGL中的位置。
+    let c_point = []; // 用于存放点击的点坐标
+    canvas.addEventListener('click', (event) => {
+        // 获取鼠标在canvas画布中CSS位置。
+        const {clientX, clientY} = event;
+        const {left, top, width, height} = canvas.getBoundingClientRect();
+        const [cssX, cssY] = [clientX - left, clientY - top];
+        // canvas 坐标系转WebGL坐标系。
+        const [halfWidth, halfHeight] = [width / 2, height / 2]; // canvas画布中心点
+        const [xBaseCenter, yBaseCenter] = [cssX - halfWidth, cssY - halfHeight]; // 鼠标位减去canvas 画布的中心位，得到的就是鼠标基于画布中心的位置。
+        // 解决y方向的差异。
+        const yBaseCenterTop = -yBaseCenter; // 因为webgl 里的y 轴和canvas 2d 里的y轴相反，所以咱们对yBaseCenter 值取一下反。
+        // 解决坐标基底的差异。
+        const [x, y] = [xBaseCenter / halfWidth, yBaseCenterTop / halfHeight] // 由于canvas 2d 的坐标基底中的两个分量分别是一个像素的宽高，而webgl的坐标基底的两个分量是画布的宽高，所以咱们得求个比值。
+        // 生成随机数，将其用作点的尺寸
+        let s = Math.random() * 30;
+        c_point.push({x, y, s});
+        // 使用指定颜色绘渲染画布底色
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        c_point.forEach(({x, y, s}) => {
+            // 修改attribute变量值
+            gl.vertexAttrib2f(a_Position, x, y);
+            gl.vertexAttrib1f(a_PointSize, s);
+            // 绘制顶点
+            gl.drawArrays(gl.POINTS, 0, 1);
+        })
+    })
+</script>
+</html>
