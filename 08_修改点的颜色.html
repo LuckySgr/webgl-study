@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>08_修改点的颜色</title>
+</head>
+<body style="overflow: hidden">
+<!--1、创建canvas画布-->
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    // 2、获取canvas画布
+    let canvas = document.getElementById('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // 3、获取WebGL上下文
+    let gl = canvas.getContext('webgl');
+    // 4、编写顶点着色器和片元着色器
+    const vertexShaderTxt = ShaderUtils.getShaderCode('./Shaders/08/vertexShader.vert')
+    const fragmentShaderTxt = ShaderUtils.getShaderCode('./Shaders/08/fragmentShader.frag')
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    // 5、获取attribute、uniform变量
+    let a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    let a_PointSize = gl.getAttribLocation(gl.program, 'a_PointSize');
+    let u_fragColor = gl.getUniformLocation(gl.program, 'u_fragColor');
+    // 指定画布底色
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    // 使用指定底色渲染画布
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // 获取鼠标点在WebGL中的位置。
+    let c_point = []; // 用于存放点击的点坐标
+    canvas.addEventListener('click', (event) => {
+        // 获取鼠标在canvas画布中CSS位置。
+        const {clientX, clientY} = event;
+        const {left, top, width, height} = canvas.getBoundingClientRect();
+        const [cssX, cssY] = [clientX - left, clientY - top];
+        // canvas 坐标系转WebGL坐标系。
+        const [halfWidth, halfHeight] = [width / 2, height / 2]; // canvas画布中心点
+        const [xBaseCenter, yBaseCenter] = [cssX - halfWidth, cssY - halfHeight]; // 鼠标位减去canvas 画布的中心位，得到的就是鼠标基于画布中心的位置。
+        // 解决y方向的差异。
+        const yBaseCenterTop = -yBaseCenter; // 因为webgl 里的y 轴和canvas 2d 里的y轴相反，所以咱们对yBaseCenter 值取一下反。
+        // 解决坐标基底的差异。
+        const [x, y] = [xBaseCenter / halfWidth, yBaseCenterTop / halfHeight] // 由于canvas 2d 的坐标基底中的两个分量分别是一个像素的宽高，而webgl的坐标基底的两个分量是画布的宽高，所以咱们得求个比值。
+        // 生成随机数，将其用作点的尺寸
+        let s = Math.random() * 30;
+        // 生成随机数，将其用作点的颜色
+        let c =new Float32Array([
+            Math.random(),
+            Math.random(),
+            Math.random(),
+            1.0
+        ])
+        c_point.push({x, y, s, c});
+        // 使用指定颜色绘渲染画布底色
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        c_point.forEach(({x, y, s, c}) => {
+            // 修改attribute,uniform变量值
+            gl.vertexAttrib2f(a_Position, x, y);
+            gl.vertexAttrib1f(a_PointSize, s);
+            gl.uniform4fv(u_fragColor, c)
+            // 绘制顶点
+            gl.drawArrays(gl.POINTS, 0, 1);
+        })
+    })
+    /**
+     * gl.uniform4f(u_FragColor,1.0,1.0,0.0,1.0);
+     * //等同于
+     * const color=new Float32Array([1.0,1.0,0.0,1.0]);
+     * gl.uniform4fv(u_FragColor,color);
+     *
+     * uniform4f 中，4 是有4个数据，f 是float 浮点类型，在我们上面的例子里就是r、g、b、a 这四个颜色数据。
+     * uniform4fv 中，4f 的意思和上面一样，v 是vector 矢量的意思，这在数学里就是向量的意思。由之前的4f 可知，这个向量由4个浮点类型的分量构成。
+     *
+     * uniform4fv() 方法的第二个参数必须是Float32Array 数组，不要使用普通的Array 对象。
+     *
+     * Float32Array 是一种32 位的浮点型数组，它在浏览器中的运行效率要比普通的Array 高很多.
+     */
+</script>
+</html>
