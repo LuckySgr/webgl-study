@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>12_WebGL绘制矩形</title>
+</head>
+<!--
+webgl 可以绘制的面只有三角面，所以要绘制矩形面的话，只能用两个三角形去拼。
+-->
+<body style="overflow: hidden">
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById("canvas");
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    let gl = canvas.getContext("webgl");
+    const vertexShaderTxt = ShaderUtils.getShaderCode('../Shaders/12/vertexShader.vert');
+    const fragmentShaderTxt = ShaderUtils.getShaderCode('../Shaders/12/fragmentShader.frag');
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    // 1、建立绘制矩形所需的顶点数据
+    let vertexPoints = new Float32Array([
+        0.1, 0.1,
+        0.1, -0.1,
+        -0.1, -0.1,
+        -0.1, 0.1
+    ]);
+    // 2、创建缓冲区
+    let vertexBuffer = gl.createBuffer();
+    // 3、绑定缓冲区
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    // 4、往缓冲区里写数据
+    gl.bufferData(gl.ARRAY_BUFFER, vertexPoints, gl.STATIC_DRAW);
+    // 5、将缓冲区对象分配给attribute变量
+    let a_Position = gl.getAttribLocation(gl.program, "a_Position");
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    // 6、开启顶点数据的批处理功能
+    gl.enableVertexAttribArray(a_Position);
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+    // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+</script>
+</html>
