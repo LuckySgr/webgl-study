@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>13_WebGL平移图形</title>
+</head>
+<!--顶点的位移就是向量的加法-->
+<body style="overflow: hidden">
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById("canvas");
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    let gl = canvas.getContext("webgl");
+    const vertexShaderTxt = ShaderUtils.getShaderCode("./Shaders/13/vertexShader.vert");
+    const fragmentShaderTxt = ShaderUtils.getShaderCode("./Shaders/13/fragmentShader.frag");
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    // 1、创建顶点数据
+    let vertexPoint = new Float32Array([
+       -0.1, 0,
+       0, 0.3,
+       0.1, 0
+    ]);
+    // 2、创建缓冲区
+    let dataBuffer = gl.createBuffer();
+    // 3、绑定缓冲区
+    gl.bindBuffer(gl.ARRAY_BUFFER, dataBuffer);
+    // 4、往缓冲区中写入数据
+    gl.bufferData(gl.ARRAY_BUFFER, vertexPoint, gl.STATIC_DRAW);
+    // 5、将缓冲区数据分配给attribute变量
+    let a_Position = gl.getAttribLocation(gl.program, "a_Position");
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    // 6、开启顶点批处理功能
+    gl.enableVertexAttribArray(a_Position);
+    let u_Translation = gl.getUniformLocation(gl.program, "u_Translation");
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    // 逐帧动画
+    let offset = 0
+    function animation() {
+        offset += 0.01; // 偏移数字越大，动画跑的越快
+        if (offset > 1) {
+            offset = -1;
+        }
+        gl.uniform4f(u_Translation, 0.0, offset, 0.0, 0.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        requestAnimationFrame(animation)
+    }
+    animation()
+</script>
+</html>
