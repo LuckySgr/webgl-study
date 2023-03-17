@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>14_WebGL旋转图形</title>
+</head>
+<body style="overflow: hidden">
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+  import ShaderUtils from "./Utils/ShaderUtils.js";
+
+  let canvas = document.getElementById("canvas");
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  let gl = canvas.getContext('webgl');
+  const vertexShaderTxt = ShaderUtils.getShaderCode("./Shaders/14/vertexShader.vert");
+  const fragmentShaderTxt = ShaderUtils.getShaderCode("./Shaders/14/fragmentShader.frag");
+  ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+  // 1、创建顶点数据
+  let vertexPoints = new Float32Array([
+      -0.2, 0,
+      0, 0.3,
+      0.2, 0
+  ]);
+  // 2、创建缓冲区
+  let dataBuffer = gl.createBuffer();
+  // 3、绑定缓冲区
+  gl.bindBuffer(gl.ARRAY_BUFFER, dataBuffer);
+  // 4、往缓冲区写入数据
+  gl.bufferData(gl.ARRAY_BUFFER, vertexPoints, gl.STATIC_DRAW)
+  // 5、将缓冲区数据分配给attribute变量
+  let a_Position = gl.getAttribLocation(gl.program, "a_Position");
+  gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+  // 6、开启批处理功能
+  gl.enableVertexAttribArray(a_Position)
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+</script>
+</html>
