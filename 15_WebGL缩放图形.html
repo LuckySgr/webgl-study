@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>15_WebGL缩放图形</title>
+</head>
+<body style="overflow: hidden">
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+  import ShaderUtils from "./Utils/ShaderUtils.js";
+
+  let canvas = document.getElementById("canvas");
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  let gl = canvas.getContext("webgl");
+  const vertexShaderTxt = ShaderUtils.getShaderCode("./Shaders/15/vertexShader.vert");
+  const fragmentShaderTxt = ShaderUtils.getShaderCode("./Shaders/15/fragmentShader.frag");
+  ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+  // 创建顶点数据
+  let vertexPoints = new Float32Array([
+          -0.2, 0,
+          0, 0.5,
+          0.2,0
+  ]);
+  // 1、创建缓冲区
+  let dataBuffer = gl.createBuffer();
+  // 2、绑定缓冲区
+  gl.bindBuffer(gl.ARRAY_BUFFER, dataBuffer);
+  // 3、往缓冲区写入数据
+  gl.bufferData(gl.ARRAY_BUFFER, vertexPoints, gl.STATIC_DRAW);
+  // 4、将缓冲区数据分配给attribute变量
+  let a_Position = gl.getAttribLocation(gl.program, "a_Position");
+  gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+  // 5、开启批处理
+  gl.enableVertexAttribArray(a_Position)
+  
+  let u_Scale = gl.getUniformLocation(gl.program, "u_Scale");
+  let angle = 0;
+  
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  function animation() {
+      angle += 0.01;
+      let scale = Math.sin(angle) + 1;
+      gl.uniform1f(u_Scale, scale)
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      requestAnimationFrame(animation)
+  }
+  animation();
+</script>
+</html>
