@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>16_矩阵平移</title>
+</head>
+<body style="overflow: hidden">
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById("canvas");
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    let gl = canvas.getContext("webgl");
+    const vertexShaderTxt = ShaderUtils.getShaderCode("./Shaders/16/vertexShader.vert");
+    const fragmentShaderTxt = ShaderUtils.getShaderCode("./Shaders/16/fragmentShader.frag");
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    let vertexPoints = new Float32Array([
+        -0.2, 0,
+        0, 0.5,
+        0.2, 0
+    ]);
+    let dataBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, dataBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertexPoints, gl.STATIC_DRAW);
+    let a_Position = gl.getAttribLocation(gl.program, "a_Position");
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Position);
+    let u_Matrix = gl.getUniformLocation(gl.program, "u_Matrix");
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    let offset = 0
+    function animation() {
+        offset += 0.01;
+        let offsetX = Math.sin(offset);
+        let offsetY = Math.cos(offset);
+        let translateMat = new Float32Array([
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            offsetX, offsetY, 0, 1
+        ]);
+        gl.uniformMatrix4fv(u_Matrix, false, translateMat);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        requestAnimationFrame(animation)
+    }
+    animation();
+</script>
+</html>
