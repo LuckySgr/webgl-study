@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>19_1_多attribute变量</title>
+</head>
+<!--每份attribute变量数据分开存放-->
+<body style="overflow: hidden">
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById("canvas");
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    let gl = canvas.getContext("webgl");
+    const vertexShaderTxt = ShaderUtils.getShaderCode("./Shaders/19/vertexShader.vert");
+    const fragmentShaderTxt = ShaderUtils.getShaderCode("./Shaders/19/fragmentShader.frag");
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    // 顶点数据
+    let vertexPoints = new Float32Array([
+        -0.2, 0,
+        0, 0.2,
+        0.2, 0
+    ]);
+    let dataBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, dataBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertexPoints, gl.STATIC_DRAW);
+    let a_Position = gl.getAttribLocation(gl.program, "a_Position");
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Position);
+    // 颜色数据
+    let colorPoints = new Float32Array([
+        0, 0.5, 0.5, 1,
+        0, 0.5, 0.4, 1,
+        0.5, 0.1, 0.2, 1
+    ]);
+    let colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, colorPoints, gl.STATIC_DRAW);
+    let a_Color = gl.getAttribLocation(gl.program, "a_Color");
+    gl.vertexAttribPointer(a_Color, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Color);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.POINTS, 0, 3);
+</script>
+</html>

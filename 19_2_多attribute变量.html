@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>19_2_多attribute变量</title>
+</head>
+<!--多份attribute变量数据合一-->
+<!--相关概念：
+
+01、数据源：整个合而为一的数据source
+02、元素字节数：32位浮点集合中每个元素的字节数
+03、类目：一个顶点对应一个类目，也就是source中的每一行
+04、系列：一个类目中所包含的每一种数据，比如顶点位置数据、顶点颜色数据
+05、系列尺寸：一个系列所对应的向量的分量数目
+06、类目尺寸：一个类目中所有系列尺寸的总和
+07、类目字节数：一个类目的所有字节数量
+08、系列元素索引位置：一个系列在一个类目中，以集合元素为单位的索引位置
+09、系列字节索引位置：一个系列在一个类目中，以字节为单位的索引位置
+10、顶点总数：数据源中的顶点总数
+
+
+gl.vertexAttribPointer(index, size, type, normalized, stride, offset)
+
+index：attribute 变量，具体而言是指向存储attribute 变量的空间的指针
+size：系列尺寸
+type：元素的数据类型
+normalized：是否归一化
+stride：类目字节数
+offset：系列索引位置
+
+-->
+<body style="overflow: hidden">
+<canvas id="canvas"></canvas>
+</body>
+<script type="module">
+    import ShaderUtils from "./Utils/ShaderUtils.js";
+
+    let canvas = document.getElementById("canvas");
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    let gl = canvas.getContext("webgl");
+    const vertexShaderTxt = ShaderUtils.getShaderCode("./Shaders/19/vertexShader.vert");
+    const fragmentShaderTxt = ShaderUtils.getShaderCode("./Shaders/19/fragmentShader.frag");
+    ShaderUtils.initShaderProgram(gl, vertexShaderTxt, fragmentShaderTxt);
+    // 数据源
+    let sources = new Float32Array([
+        -0.2, 0,   0, 0.5, 0.5, 1,
+        0, 0.2,    0, 0.5, 0.4, 1,
+        0.2, 0,    0.5, 0.1, 0.2, 1
+    ]);
+    // 元素字节数
+    let elementBytes = sources.BYTES_PER_ELEMENT;
+    // 系列尺寸
+    let verticesSize = 2;
+    let colorsSize = 4;
+    // 类目尺寸
+    let categorySize = verticesSize + colorsSize;
+    // 类目字节数
+    let categoryBytes = categorySize * elementBytes;
+    // 系列字节索引位置
+    const verticesByteIndex = 0
+    const colorsByteIndex = verticesSize * elementBytes
+    // 顶点总数
+    let sourcesSize = sources.length / categorySize
+    // 将数据写进缓冲区
+    let sourcesBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sourcesBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, sources, gl.STATIC_DRAW);
+
+    let a_Position = gl.getAttribLocation(gl.program, "a_Position");
+    gl.vertexAttribPointer(a_Position,
+        verticesSize,
+        gl.FLOAT,
+        false,
+        categoryBytes,
+        verticesByteIndex);
+    gl.enableVertexAttribArray(a_Position);
+
+    let a_Color = gl.getAttribLocation(gl.program, "a_Color");
+    gl.vertexAttribPointer(a_Color,
+        colorsSize,
+        gl.FLOAT,
+        false,
+        categoryBytes,
+        colorsByteIndex);
+    gl.enableVertexAttribArray(a_Color);
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.POINTS, 0, sourcesSize);
+</script>
+</html>
